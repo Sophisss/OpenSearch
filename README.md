@@ -19,7 +19,7 @@ To run OpenSearch on your local environment, you can use Docker and Docker Compo
 
 ### Instructions
 1. **Download the repository files**:
-Download or copy the `docker-compose.yml` file and any other necessary files from this repository to your local system. You can place them in any folder where you'd like to run OpenSearch.
+Download or copy the `docker-compose.yml` file from this repository to your local system. You can place them in any folder where you'd like to run OpenSearch.
 
 2. **Check Docker Compose configuration**:  
    Ensure that the `docker-compose.yml` file is properly configured for your environment. You can customize settings like network ports or memory if necessary.
