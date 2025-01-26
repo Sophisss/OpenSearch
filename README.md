@@ -1,27 +1,30 @@
 # OpenSearch
-This project contains the OpenSearch configuration using Docker Compose, along with the documentation that will accompany the project. 
+This project contains the OpenSearch configuration using Docker Compose, along with the documentation that will help you get started with the project.
 
-## What is OpenSearch?
+## **What is OpenSearch?**  
 OpenSearch is an open-source search and analytics suite designed to provide a scalable and high-performance solution for managing and querying large volumes of data. It is a fork of Elasticsearch and Kibana, developed by Amazon Web Services (AWS) and maintained by the community.
 
-### Key Features:
+### **Key Features:** 
 - **Full-text Search**: Ability to perform advanced search queries on large volumes of data.
 - **Scalability**: OpenSearch is designed to scale horizontally, enabling the management of huge amounts of data.
 - **Aggregations**: Allows performing advanced data analysis through aggregations and statistics.
-- **Kibana Web Interface**: Provides a web interface for interactive visualization and analysis of data.
+- **Interactive Dashboards**: OpenSearch Dashboards provide a web-based visualization and analysis interface.
 
-## Running OpenSearch with Docker Compose
+
+## **How to Set Up OpenSearch Locally with Docker Compose** 
 To run OpenSearch on your local environment, you can use Docker and Docker Compose. Below are the steps to configure and start OpenSearch using the `docker-compose.yml` file provided in this repository.
 
-### Prerequisites
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/)
+### **Prerequisites**  
+Ensure you have the following tools installed on your system:  
+1. [Docker](https://www.docker.com/get-started): Required to run OpenSearch containers.  
+2. [Docker Compose](https://docs.docker.com/compose/): For managing multi-container applications.
 
-### Instructions
-1. **Download the repository files**:
-Download or copy the `docker-compose.yml` file from this repository to your local system. You can place them in any folder where you'd like to run OpenSearch.
+### **Setup Instructions** 
 
-2. **Check Docker Compose configuration**:  
+1. **Clone or Download this Repository**:
+   Download or copy the `docker-compose.yml` file from this repository to your local system. Place it in a directory where you'd like to run OpenSearch.
+
+2. **Customize Configuration**:
    Ensure that the `docker-compose.yml` file is properly configured for your environment. You can customize settings like network ports or memory if necessary.
 
    **Note**:  
