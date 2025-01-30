@@ -1,23 +1,41 @@
 # OpenSearch
-This project contains the OpenSearch configuration using Docker Compose, along with the documentation that will help you get started with the project.
+This project contains the OpenSearch configuration using Docker Compose, along with documentation to help you get started quickly.
 
 ## **What is OpenSearch?**  
 OpenSearch is an open-source search and analytics suite designed to provide a scalable and high-performance solution for managing and querying large volumes of data. It is a fork of Elasticsearch and Kibana, developed by Amazon Web Services (AWS) and maintained by the community.
 
 ### **Key Features:** 
-- **Full-text Search** 🔍: Ability to perform advanced search queries on large volumes of data.
-- **Scalability** 📈: OpenSearch is designed to scale horizontally, enabling the management of huge amounts of data.
-- **Aggregations** 📊: Allows performing advanced data analysis through aggregations and statistics.
-- **Interactive Dashboards** 📉: OpenSearch Dashboards provide a web-based visualization and analysis interface.
+- 🔍 **Full-text Search**: Ability to perform advanced search queries on large volumes of data.
+- 📈 **Scalability**: OpenSearch is designed to scale horizontally, enabling the management of huge amounts of data.
+- 📊 **Aggregations**: Allows performing advanced data analysis through aggregations and statistics.
+- 📉 **Interactive Dashboards**: OpenSearch Dashboards provide a web-based visualization and analysis interface.
 
+## **Project Overview and Objectives** 
+This project aims to explore and evaluate OpenSearch, focusing on its core functionalities and integrations. The key goals include:
+- 🔍 **Observability Analysis**: Understanding how OpenSearch handles observability and its relation to OpenTelemetry.
+- 📊 **Feature Exploration**: Examining OpenSearch’s capabilities, including search, analytics, and visualization.
+- 🤖 **AI/ML Support**: Investigating the AI/ML functionalities provided by OpenSearch, such as anomaly detection.
+- 🎯 **Hands-on Deployment**: Setting up OpenSearch locally using Docker Compose to experiment with its features.
 
 ## **How to Set Up OpenSearch Locally with Docker Compose** 
 To run OpenSearch on your local environment, you can use Docker and Docker Compose. Below are the steps to configure and start OpenSearch using the `docker-compose.yml` file provided in this repository.
 
 ### **Prerequisites**  
 Ensure you have the following tools installed on your system:  
-1. [Docker](https://www.docker.com/get-started) 🐳: Required to run OpenSearch containers.  
-2. [Docker Compose](https://docs.docker.com/compose/) 🛠️: For managing multi-container applications.
+1. [Docker](https://www.docker.com/get-started) 🐳 - Required for containerized OpenSearch deployment.
+   
+   - Verify installation:
+     
+     ```bash
+       docker --version
+       ```
+2. [Docker Compose](https://docs.docker.com/compose/) 🛠️ - For managing multi-container applications.
+
+   - Verify installation:
+     
+     ```bash
+       docker-compose --version
+       ```
 
 ### **Setup Instructions** 
 
@@ -64,8 +82,38 @@ When you're done, you can stop the containers with the following command:
 
     Alternatively, you can stop the containers by pressing `Ctrl + C` in the terminal where you ran `docker-compose up`. This will stop the containers, but     they will remain in a stopped state. To remove them entirely, you should run `docker-compose down`.
 
+## **Troubleshooting** 🛠️
+If you encounter issues, here are some common solutions:
+1. **Ports Already in Use**
+   
+   If port `9200` (OpenSearch) or `5601` (Dashboards) is occupied, modify `docker-compose.yml`:
+   ```yaml
+     ports:
+       - "9201:9200" # Change the external port
+       - "5602:5601"
+    ```
+   Then restart OpenSearch with:
+   ```bash
+   docker-compose down && docker-compose up
+    ```
+2. **Authentication Errors**
+
+   - Ensure that the admin password is set correctly in `docker-compose.yml`.
+   - Restart OpenSearch to apply changes.
+
+3. **Container Not Starting**
+
+   Check logs for errors:
+   ```bash
+   docker-compose logs opensearch-node1
+    ```
+   If necessary, remove existing volumes and restart:
+   ```bash
+   docker-compose down -v && docker-compose up
+    ```
+
 ## Official OpenSearch Documentation 📚
 For more detailed instructions, official downloads, and configuration options, please refer to the [OpenSearch official documentation](https://opensearch.org/downloads.html).
 
-## Documentation 📝
+## Project Report and Additional Documentation 📝
 The project report, including further details on installation, configuration, and analysis of OpenSearch, will be available in this repository.
