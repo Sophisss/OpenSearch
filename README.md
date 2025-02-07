@@ -99,12 +99,15 @@ Once the configuration is complete, navigate to the directory containing `docker
     },
     "tagline": "The OpenSearch Project: https://opensearch.org/"
    }
-    ``` 
+    ```
+   Additionally, to confirm the containers are running properly, check your Docker container list. You should see both OpenSearch nodes (opensearch-node1 and opensearch-node2) as well as the OpenSearch Dashboards container, confirming that the entire OpenSearch cluster is operational. Below is an example of what that might look like:
 
-7. **Access OpenSearch Dashboards** 🌐:  
+      <img width="1127" alt="image" src="https://github.com/user-attachments/assets/09793bfe-1f98-4aea-8a18-626cab938a5d" />
+
+6. **Access OpenSearch Dashboards** 🌐:  
 Once the containers are up and running, you can access OpenSearch Dashboards via your browser at [http://localhost:5601](http://localhost:5601) and log in with the default username `admin` and the password you set in the `docker-compose.yml` file (e.g., `<your-password>`).
 
-8. **Stop the containers** ⏹️:  
+7. **Stop the containers** ⏹️:  
 When you're done, you can stop the containers with the following command:
 
     ```bash
