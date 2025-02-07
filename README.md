@@ -39,10 +39,17 @@ Ensure you have the following tools installed on your system:
 
 ### **Setup Instructions** 
 
-1. **Clone or Download this Repository** 📂:
+1. **Clone or Download this Repository** 📂:  
    Download or clone the repository containing the `docker-compose.yml` file to your local system. You can choose the directory where you'd like to run OpenSearch.
 
-2. **Customize Configuration** ⚙️:
+2. **Understand the Configuration** 💡:  
+   The `docker-compose.yml` file defines the OpenSearch cluster setup. It consists of two nodes, `opensearch-node1` and `opensearch-node2`, which work together as part of the `opensearch-cluster`. These nodes:
+     - Store and index data, allowing full-text search, log analysis, and structured data querying.
+     - Ensure fault tolerance so if one node fails, the other continues operating.
+     - Improve scalability, distributing workload across multiple nodes for handling large data volumes and complex queries.
+     - Enable advanced search functionalities, supporting aggregations and AI-driven anomaly detection.
+
+3. **Customize Configuration** ⚙️:  
    Open the `docker-compose.yml` file and configure it according to your environment. For example, you can change port mappings or memory settings based on your system's resources.
 
    > ⚠️ **Note:**  
@@ -64,7 +71,7 @@ Ensure you have the following tools installed on your system:
    > Ensure that the password is the same across both nodes and meets OpenSearch's password requirements. For detailed guidance on setting up the password and the requirements, consult the [official guide on demo configuration](https://opensearch.org/docs/latest/security/configuration/demo-configuration/).
    
    
-3. **Start OpenSearch** 🚀:
+4. **Start OpenSearch** ▶️:  
 Once the configuration is complete, navigate to the directory containing `docker-compose.yml` and run the following command to start OpenSearch:
 
     ```bash
@@ -72,10 +79,32 @@ Once the configuration is complete, navigate to the directory containing `docker
     ```
     This will download the necessary Docker images and start the OpenSearch and OpenSearch Dashboards containers (the web interface for managing OpenSearch).
 
-4. **Access OpenSearch Dashboards** 🌐:
+5. **Verify OpenSearch is Running** ✅:  
+   Once the system is running, navigate to [https://localhost:9200](https://localhost:9200). If successful, you should see a response similar to:
+   ```json
+    {
+    "name": "opensearch-node1",
+    "cluster_name": "opensearch-cluster",
+    "cluster_uuid": "8qHNNTCSRlWke8As-EOl8w",
+    "version": {
+        "distribution": "opensearch",
+        "number": "2.18.0",
+        "build_type": "tar",
+        "build_hash": "99a9a81da366173b0c2b963b26ea92e15ef34547",
+        "build_date": "2024-10-31T19:08:04.231254959Z",
+        "build_snapshot": false,
+        "lucene_version": "9.12.0",
+        "minimum_wire_compatibility_version": "7.10.0",
+        "minimum_index_compatibility_version": "7.0.0"
+    },
+    "tagline": "The OpenSearch Project: https://opensearch.org/"
+   }
+    ``` 
+
+7. **Access OpenSearch Dashboards** 🌐:  
 Once the containers are up and running, you can access OpenSearch Dashboards via your browser at [http://localhost:5601](http://localhost:5601) and log in with the default username `admin` and the password you set in the `docker-compose.yml` file (e.g., `<your-password>`).
 
-5. **Stop the containers** ⏹️:
+8. **Stop the containers** ⏹️:  
 When you're done, you can stop the containers with the following command:
 
     ```bash
