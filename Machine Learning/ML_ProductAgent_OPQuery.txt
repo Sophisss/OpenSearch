@@ -1,0 +1,217 @@
+PUT _cluster/settings
+{
+    "persistent": {
+        "plugins.ml_commons.only_run_on_ml_node": false,
+        "plugins.ml_commons.native_memory_threshold": 100,
+        "plugins.ml_commons.agent_framework_enabled": true
+    }
+}
+
+#prevent circuit breaker issue
+
+POST /_plugins/_ml/models/_register
+{
+  "name": "huggingface/sentence-transformers/all-MiniLM-L12-v2",
+  "version": "1.0.1",
+  "model_format": "TORCH_SCRIPT"
+}
+#Register a text embedding model that will translate text into vector embeddings note down Task ID you receive back
+
+
+GET /_plugins/_ml/tasks/TASKID
+#note down the ModelID you get back / replace taskID with IDe from previous step
+
+POST /_plugins/_ml/models/MODELID/_deploy
+# Deploy the model replace ModelID
+
+POST /_plugins/_ml/models/MODELID/_predict
+{
+  "text_docs":[ "I go home!"],
+  "return_number": true,
+  "target_response": ["sentence_embedding"]
+}
+#test the emedding
+
+PUT /_ingest/pipeline/product_reviews_data_pipeline
+{
+    "description": "text embedding pipeline for product review usecase",
+    "processors": [
+        {
+            "text_embedding": {
+                "model_id": "YOURMODELID",
+                "field_map": {
+                    "review": "review_embedding"
+                }
+            }
+        },
+        {
+            "text_embedding": {
+                "model_id": "YOURMODELID",
+                "field_map": {
+                    "product": "product_embedding"
+                }
+            }
+        }
+    ]
+}
+#Creates an ingest pipeline with a text embedding processor, which can invoke the model created in the previous step to generate embeddings from text fields
+
+PUT product_reviews
+{
+  "mappings": {
+    "properties": {
+      "product": {
+        "type": "text"
+      },
+      "product_embedding": {
+        "type": "knn_vector",
+        "dimension": 384
+      },
+      "review": {
+        "type": "text"
+      },
+      "review_embedding": {
+        "type": "knn_vector",
+        "dimension": 384
+      }
+    }
+  },
+  "settings": {
+    "index": {
+      "knn.space_type": "cosinesimil",
+      "default_pipeline": "product_reviews_data_pipeline",
+      "knn": "true"
+    }
+  }
+}
+#Creates a k-NN index specifying the ingest pipeline as a default pipeline
+
+PUT /_cluster/settings
+{
+    "persistent": {
+        "plugins.ml_commons.connector_access_control_enabled": true
+    }
+}
+# mandatory setting as we use a external connector
+
+PUT /_cluster/settings
+{
+    "persistent": {
+        "plugins.ml_commons.trusted_connector_endpoints_regex": [
+          "^https://runtime\\.sagemaker\\..*[a-z0-9-]\\.amazonaws\\.com/.*$",
+          "^https://api\\.openai\\.com/.*$",
+          "^https://generativelanguage\\.googleapis\\.com/.*$",
+          "^https://api\\.cohere\\.ai/.*$",
+          "^https://bedrock-runtime\\..*[a-z0-9-]\\.amazonaws\\.com/.*$"
+        ]
+    }
+}
+#whitelist Gemini API
+
+
+POST /_plugins/_ml/connectors/_create
+{
+    "name": "Gemini Chat Connector",
+    "description": "The connector to public Gemini model free sercice",
+    "version": 1,
+    "protocol": "http",
+    "parameters": {
+        "endpoint": "generativelanguage.googleapis.com",
+        "model": "gemini-1.5-flash",
+        "APIkey": "YOURGEMINIAPIKEY"
+    },
+    "credential": {
+        "dummy": "dummy"
+    },
+    "actions": [
+        {
+            "action_type": "predict",
+            "method": "POST",
+            "url": "https://${parameters.endpoint}/v1beta/models/${parameters.model}:generateContent?key=${parameters.APIkey}",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "request_body": "{ \"contents\": [{ \"parts\": [{ \"text\": \"${parameters.prompt}\" }] }] }"
+        }
+    ]
+}
+#creates a connection to Gemini (write down connector ID) the dummy credentials are needd, as credentials cannot be empty (although we dont use it)
+#the connection offers an action that is called "predict" which takes the parameters from the user input of the action and does prompt it to Gemini
+
+POST /_plugins/_ml/models/_register
+{
+    "name": "Gemini Flash Model 2",
+    "function_name": "remote",
+    "description": "Gemini Flash 1.5v Model",
+    "connector_id": "CONNECTORID"
+}
+#registers the connector just created in a model (write down Model ID (referred later as YOURMODELIDGEMINI)
+
+POST /_plugins/_ml/models/YOURMODELIDGEMINI/_deploy
+#deploys the model
+
+POST /_plugins/_ml/models/YOURMODELIDGEMINI/_predict
+{
+  "parameters": {
+    "prompt": "What is Camerino?"
+
+  }
+}
+#test model
+
+POST /_plugins/_ml/agents/_register
+{
+    "name": "Product Review Agent 2",
+    "type": "conversational_flow",
+    "description": "This is a demo agent for giving information about products regarding reviews",
+    "app_type": "rag",
+    "memory": {
+        "type": "conversation_index"
+    },
+    "tools": [
+        {
+            "type": "VectorDBTool",
+            "name": "product_knowledge_base",
+            "parameters": {
+                "model_id": "YOURMODELID",
+                "index": "product_reviews",
+                "embedding_field": "product_embedding",
+                "source_field": [
+                    "product"
+                ],
+                "input": "${parameters.question}"
+            }
+        },
+                {
+            "type": "VectorDBTool",
+            "name": "review_knowledge_base",
+            "parameters": {
+                "model_id": "YOURMODELID",
+                "index": "product_reviews",
+                "embedding_field": "review_embedding",
+                "source_field": [
+                    "review"
+                ],
+                "input": "${parameters.question}"
+            }
+        },
+        {
+            "type": "MLModelTool",
+            "name": "bedrock_claude_model",
+            "description": "A general tool to answer any question",
+            "parameters": {
+                "model_id": "MODELIDFROMGEMINIMODEL",
+                "prompt": "\n\nHuman:You are a professional sentiment analysist and you can answer questions regarding reviews of products. You will always answer question based on the given context first. If the answer is not directly shown in the context, you will analyze the data and find the answer. If you don't have enough context, you will ask Human to provide more information. If you don't know the answer, just say don't know. \n\n Context:\n${parameters.product_knowledge_base.output}\n\n${parameters.review_knowledge_base.output}\n\nHuman:${parameters.question}\n\nAssistant:"
+            }
+        }
+    ]
+}
+#creates an Agent (write down AgentID)
+
+POST /_plugins/_ml/agents/YOURAGENTID/_execute
+{
+  "parameters": {
+    "question": "Which product is the holy grail for some commenter?"
+  }
+}
+#test the agent
