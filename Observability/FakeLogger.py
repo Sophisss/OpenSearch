@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import time
 import datetime
 import random
@@ -9,13 +8,14 @@ from faker import Faker
 from tzlocal import get_localzone
 from urllib.parse import urlparse
 
-# OpenSearch Configuration (UPDATE THIS)
+# OpenSearch Configuration (UPDATE THIS with your credentials)
 OPENSEARCH_URL = "https://localhost:9200"
 INDEX_NAME = "logs-demo"
 USERNAME = "admin"
-PASSWORD = "Str@ngPasword1!"
+PASSWORD = "Str0ngP@ssw0rd!"
 
 local = get_localzone()
+# Initialize Faker to generate fake data
 faker = Faker()
 
 # Command-line arguments
@@ -27,6 +27,7 @@ args = parser.parse_args()
 
 log_lines = args.num_lines if args.num_lines > 0 else float('inf')
 
+# Define possible values for log attributes
 response_codes = ["200", "404", "500", "301", "403", "503"]
 http_methods = ["GET", "POST", "DELETE", "PUT", "PATCH"]
 resources = ["/login", "/register", "/products", "/cart", "/checkout", "/api/v1/user", "/api/v1/orders",
@@ -34,6 +35,8 @@ resources = ["/login", "/register", "/products", "/cart", "/checkout", "/api/v1/
 browsers = ["Chrome", "Firefox", "Edge", "Safari", "Opera"]
 os_types = ["Windows", "macOS", "Linux", "Android", "iOS"]
 device_types = ["Desktop", "Mobile", "Tablet"]
+
+# Mapping HTTP errors to messages
 error_messages = {
     "500": "Internal Server Error",
     "403": "Forbidden - Access Denied",
@@ -45,6 +48,7 @@ log_counter = 0
 
 
 def generate_log():
+    """Generates a fake log entry with randomized values."""
     timestamp = datetime.datetime.now(datetime.UTC).isoformat()
     ip = faker.ipv4()
     dt = datetime.datetime.now(local).strftime('%d/%b/%Y:%H:%M:%S')
@@ -73,6 +77,7 @@ def generate_log():
 
     error_message = error_messages.get(str(status_code), "")
 
+    # Construct the log entry as a dictionary
     log_entry = {
         "timestamp": timestamp,
         "ip": ip,
@@ -98,7 +103,8 @@ def generate_log():
     return log_entry
 
 
-def send_log_to_opensearch(log):
+def send_log_to_opensearch(log_to_send):
+    """Sends a log entry to OpenSearch."""
     global log_counter
     url = f"{OPENSEARCH_URL}/{INDEX_NAME}/_doc"
     headers = {"Content-Type": "application/json"}
@@ -106,9 +112,10 @@ def send_log_to_opensearch(log):
     auth = (USERNAME, PASSWORD) if USERNAME and PASSWORD else None
 
     try:
-        print(f"🔹 Sending log: {log}")
+        print(f"🔹 Sending log: {log_to_send}")
 
-        response = requests.post(url, json=log, headers=headers, auth=auth, verify=False, timeout=10)
+        # Send HTTP POST request to OpenSearch
+        response = requests.post(url, json=log_to_send, headers=headers, auth=auth, verify=False, timeout=10)
 
         if response.status_code in [200, 201]:
             log_counter += 1
@@ -121,7 +128,7 @@ def send_log_to_opensearch(log):
     except requests.exceptions.RequestException as e:
         print(f"🚨 Connection error: {e}")
 
-
+# Main loop: generate and send logs
 while log_lines > 0 or log_lines == float('inf'):
     log = generate_log()
     send_log_to_opensearch(log)
