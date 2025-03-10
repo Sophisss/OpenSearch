@@ -1,0 +1,15 @@
+log-pipeline:
+  source:
+    http:
+      ssl: false
+  processor:
+    - grok:
+        match:
+          log: [ "%{COMMONAPACHELOG}" ]
+  sink:
+    - opensearch:
+        hosts: [ "http://localhost:9200" ]
+        insecure: true
+        username: admin
+        password: Str0ngP@ssw0rd!
+        index: logs-demo
