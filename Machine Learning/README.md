@@ -68,7 +68,7 @@ volumes:
 - Clean and reduce to only 2019 onword entries.
 - Keep only two columns: `product`, `review`
 - You find the used cleaned up data as a file in this project.
-- The data needs to be pushed via the [Python script](Machine Learning/csv2Json.py) into the index in OpenSearch (see step 6. below)
+- The data needs to be pushed via the [Python script](/Machine Learning/csv2Json.py) into the index in OpenSearch (see step 6. below)
 
 ## ⚙️ 2. Step-by-Step Setup in OpenSearch
 
