@@ -1,6 +1,6 @@
 # 🧠 OpenSearch Product Review Agent
 
-This example demonstrates how to build an  agent using **OpenSearch**, **Hugging Face embeddings**, and **Gemini** to provide natural language answers based on product reviews and is one application of the AI/ML features in OpenSearch.
+This example demonstrates how to build an  agent using **OpenSearch** ML/AI functionalities, **Hugging Face embeddings**, and **Gemini** to provide natural language answers based on product reviews and is one application of the AI/ML features in OpenSearch.
 
 ---
 
@@ -15,22 +15,9 @@ This example demonstrates how to build an  agent using **OpenSearch**, **Hugging
   - Python (for csv data transformation and bulk upload)
 
 ---
-
-## 📁 Project Structure
-
-```
-📂 project-root/d
-├── data/
-│   └── product_reviews_cleaned.csv   # Cleaned CSV: product + review columns only
-├── scripts/
-│   └── upload_to_opensearch.py       # Python script for bulk upload
-└── README.md                         # This file
-```
-
----
 ## 🐳 Docker Setup (for Local Development)
 
-To quickly spin up OpenSearch with required nodes and dashboards, use the `docker-compose.yml` setup found in this repo. Main difference to the previously used yaml-file is the addition of a ML dedicated node. as shown below:
+To quickly spin up OpenSearch with required nodes and dashboards, use the [`docker-compose.yml`](/Machine%20Learning/docker-compose.yml) setup found in this repo. Main difference to the previously used yaml-file is the addition of a Machine learning dedicated node, as shown below:
 
 ```yaml
   opensearch-ml1:
@@ -63,17 +50,18 @@ volumes:
 
 > ℹ️ **Note**: Replace `your_password_here` with a secure admin password.
 
-## 🗃️ 1. Prepare the Data
+## 🗃️ Prepare the Data
 - Download product reviews dataset from Kaggle.
 - Clean and reduce to only 2019 onword entries.
 - Keep only two columns: `product`, `review`
-- You find the used cleaned up data as a file in this project.
-- The data needs to be pushed via the [Python script](/Machine Learning/csv2Json.py) into the index in OpenSearch (see step 6. below)
+- You find the used cleaned up data [.csv-file here](/Machine%20Learning/Ulta_Reviews_processed.csv)
+- The data needs to be pushed via the [Python script](/Machine%20Learning/csv2Json.py) into the index in OpenSearch (see step 6. below)
 
-## ⚙️ 2. Step-by-Step Setup in OpenSearch
+---
 
-You will find in [ML_ProductAgent_OPQuery.txt](Machine Learning/ML_ProductAgent_OPQuery.txt), a commented file with all commands needed to be exceuted in the DEVTools Commandline in OpenSearch Dashboard: upper left menu Navigation => scroll down to "Management" => click on Dev Tools. 
+## ⚙️ Step-by-Step Setup in OpenSearch
 
+You will find in [ML_ProductAgent_OPQuery.txt](Machine%20Learning/ML_ProductAgent_OPQuery.txt), a commented file with all commands needed to be exceuted in the DEVTools Commandline in OpenSearch Dashboard: upper left menu Navigation => scroll down to "Management" => click on Dev Tools. 
 
 
 ### 1. Enable ML Commons + Agent Framework
@@ -105,6 +93,7 @@ POST /_plugins/_ml/models/_register
 ✅ *This model will convert text into dense vector embeddings.*
 
 ⏺ **Note down the returned `task_id`**, then use it to retrieve the model ID:
+
 
 ```json
 GET /_plugins/_ml/tasks/TASKID
@@ -156,9 +145,9 @@ PUT /_ingest/pipeline/product_reviews_data_pipeline
 }
 ```
 
-✅ *This pipeline will run on document ingestion and create vector embeddings.*
+✅ *This pipeline will run on document ingestion and create vector embeddings and will store the vectors in the fields with "..._embedding".*
 
-### 5. Create k-NN Index with Vector Fields
+### 5. Create Index with Vector Fields
 
 ```json
 PUT product_reviews
@@ -181,7 +170,7 @@ PUT product_reviews
 }
 ```
 
-✅ *Configures the index for vector search and attaches the ingest pipeline.*
+✅ *Configures the index for vector search and attaches the ingest pipeline so it is being run whenever new data arise.*
 
 ### 6. Push data with [Python script](Machine Learning/csv2Json.py) into index
 As data can not directly be imported as csv into OpenSearch, Use the script to tranform into bulk upload JSon and send via REST to OpenSearch. You can check if succesfull under upper left menu Navigation => scroll down to "Management" => click on Index Management => check the produc_review index for entries
@@ -221,19 +210,47 @@ PUT /_cluster/settings
 ```json
 POST /_plugins/_ml/connectors/_create
 {
-  "name": "Gemini Chat Connector",
-  "description": "The connector to public Gemini model free service",
-  ...
+    "name": "Gemini Chat Connector",
+    "description": "The connector to public Gemini model free sercice",
+    "version": 1,
+    "protocol": "http",
+    "parameters": {
+        "endpoint": "generativelanguage.googleapis.com",
+        "model": "gemini-1.5-flash",
+        "APIkey": "YOURGEMINIAPIKEY"
+    },
+    "credential": {
+        "dummy": "dummy"
+    },
+    "actions": [
+        {
+            "action_type": "predict",
+            "method": "POST",
+            "url": "https://${parameters.endpoint}/v1beta/models/${parameters.model}:generateContent?key=${parameters.APIkey}",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "request_body": "{ \"contents\": [{ \"parts\": [{ \"text\": \"${parameters.prompt}\" }] }] }"
+        }
+    ]
 }
 ```
 
-✅ *Dummy credentials are required even if unused. Note connector ID.*
+✅ *Dummy credentials are required even if unused, as required by OpenSearch but not from Gemini. Note connector ID.*
+ℹ️ *the connection offers an action that is called "predict" which takes the parameters from the user input of the action and does prompt it to Gemini*
 
 ### 9. Register & Deploy Gemini Model
 
 ```json
 POST /_plugins/_ml/models/_register
+{
+    "name": "Gemini Flash Model 1.5",
+    "function_name": "remote",
+    "description": "Gemini Flash 1.5v Model",
+    "connector_id": "CONNECTORID"
+}
 ```
+ℹ️ *registers the connector just created in a model (write down Model ID (referred later as YOURMODELIDGEMINI)*
 
 Deploy it:
 
@@ -257,11 +274,54 @@ POST /_plugins/_ml/models/YOURMODELIDGEMINI/_predict
 ```json
 POST /_plugins/_ml/agents/_register
 {
-  ...
+    "name": "Product Review Agent 2",
+    "type": "conversational_flow",
+    "description": "This is a demo agent for giving information about products regarding reviews",
+    "app_type": "rag",
+    "memory": {
+        "type": "conversation_index"
+    },
+    "tools": [
+        {
+            "type": "VectorDBTool",
+            "name": "product_knowledge_base",
+            "parameters": {
+                "model_id": "YOURMODELID",
+                "index": "product_reviews",
+                "embedding_field": "product_embedding",
+                "source_field": [
+                    "product"
+                ],
+                "input": "${parameters.question}"
+            }
+        },
+                {
+            "type": "VectorDBTool",
+            "name": "review_knowledge_base",
+            "parameters": {
+                "model_id": "YOURMODELID",
+                "index": "product_reviews",
+                "embedding_field": "review_embedding",
+                "source_field": [
+                    "review"
+                ],
+                "input": "${parameters.question}"
+            }
+        },
+        {
+            "type": "MLModelTool",
+            "name": "bedrock_claude_model",
+            "description": "A general tool to answer any question",
+            "parameters": {
+                "model_id": "MODELIDFROMGEMINIMODEL",
+                "prompt": "\n\nHuman:You are a professional sentiment analysist and you can answer questions regarding reviews of products. You will always answer question based on the given context first. If the answer is not directly shown in the context, you will analyze the data and find the answer. If you don't have enough context, you will ask Human to provide more information. If you don't know the answer, just say don't know. \n\n Context:\n${parameters.product_knowledge_base.output}\n\n${parameters.review_knowledge_base.output}\n\nHuman:${parameters.question}\n\nAssistant:"
+            }
+        }
+    ]
 }
 ```
 
-✅ *Includes tools for vector search and LLM prompting.*
+✅ *Creates an Agent (write down AgentID), including tools for vector search and LLM prompting.*
 
 ### 11. Interact with the Agent
 
@@ -274,19 +334,15 @@ POST /_plugins/_ml/agents/YOURAGENTID/_execute
 }
 ```
 
----
+### 🧪 Example Output
 
-## 🧪 Example Output
-
-> *Most users appreciate its nourishing properties, especially for dry or damaged hair. It leaves hair soft, shiny, and frizz-free with a pleasant scent.*
+> *The reviews for  Morocco Extra Penetrating Oil are overwhelmingly positive. One reviewer raves about its effectiveness in preventing split ends and heat damage, praising its pleasant scent and efficiency (a little goes a long way). Another reviewer reports that their daughter loves the product and particularly enjoys the smell. Both reviews highlight the positive sensory experience (smell)*
 
 ---
 
 ## 💡 Future Enhancements
 
-- Add web UI
-- Sentiment classification
-- Streaming ingestion
+- Add web UI, curently we can address the Agent with a REST call or a Dev Tools command, but it would be nice to have a built in chatbot for such request for OpenSearch dashboard users.
 
 ---
 
@@ -294,4 +350,4 @@ POST /_plugins/_ml/agents/YOURAGENTID/_execute
 
 - [OpenSearch ML Commons](https://opensearch.org/docs/latest/ml-commons/)
 - [Gemini API](https://ai.google.dev/)
-- [Hugging Face Sentence Transformers](https://www.sbert.net/)
+- [Chat GPT](https://chatgpt.com/)
