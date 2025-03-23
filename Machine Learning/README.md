@@ -1,30 +1,25 @@
-CSV to Json needed because Data set in CSV format
-got a sample data https://www.kaggle.com/datasets/winston56/johnson-johnson-ogx-product-reviews
-took only reveiews from 2019 onwards that were not empty => 2213 entries
-
-
 # 🧠 OpenSearch Product Review Agent
 
-This project demonstrates how to build an intelligent agent using **OpenSearch**, **Hugging Face embeddings**, and **Gemini** to provide natural language answers based on product reviews.
+This example demonstrates how to build an  agent using **OpenSearch**, **Hugging Face embeddings**, and **Gemini** to provide natural language answers based on product reviews and is one application of the AI/ML features in OpenSearch.
 
 ---
 
 ## 📦 Overview
 
-- **Dataset**: Product reviews from [Kaggle](https://www.kaggle.com/) reduced to 2,000 entries.
+- **Dataset**: Product reviews from [Kaggle]([https://www.kaggle.com/datasets/winston56/johnson-johnson-ogx-product-reviews]) reduced only reveiews from 2019 onwards that were not empty => 2213 entries.
 - **Goal**: Enable users to ask questions about products and get contextual, smart answers using vector search + LLM.
 - **Tech Stack**:
   - OpenSearch (ML Commons, k-NN, Agent Framework)
   - Hugging Face Sentence Transformers
   - Gemini API (via OpenSearch connector)
-  - Python (for data transformation and bulk upload)
+  - Python (for csv data transformation and bulk upload)
 
 ---
 
 ## 📁 Project Structure
 
 ```
-📂 project-root/
+📂 project-root/d
 ├── data/
 │   └── product_reviews_cleaned.csv   # Cleaned CSV: product + review columns only
 ├── scripts/
@@ -33,15 +28,55 @@ This project demonstrates how to build an intelligent agent using **OpenSearch**
 ```
 
 ---
+## 🐳 Docker Setup (for Local Development)
 
-## ⚙️ Step-by-Step Setup
+To quickly spin up OpenSearch with required nodes and dashboards, use the `docker-compose.yml` setup found in this repo. Main difference to the previously used yaml-file is the addition of a ML dedicated node. as shown below:
 
-### 1. Prepare the Data
+```yaml
+  opensearch-ml1:
+    image: opensearchproject/opensearch:2
+    container_name: opensearch-ml1
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-ml1
+      - node.roles=ml
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2
+      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=your_password_here
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-ml1:/usr/share/opensearch/data
+    networks:
+      - opensearch-net
+
+volumes:
+  opensearch-ml1:
+```
+
+> ℹ️ **Note**: Replace `your_password_here` with a secure admin password.
+
+## 🗃️ 1. Prepare the Data
 - Download product reviews dataset from Kaggle.
-- Clean and reduce to ~2k entries.
-- Keep only two columns: `product`, `review`.
+- Clean and reduce to only 2019 onword entries.
+- Keep only two columns: `product`, `review`
+- You find the used cleaned up data as a file in this project.
+- The data needs to be pushed via the [Python script](Machine Learning/csv2Json.py) into the index in OpenSearch (see step 6. below)
 
-### 2. Enable ML Commons + Agent Framework
+## ⚙️ 2. Step-by-Step Setup in OpenSearch
+
+You will find in [ML_ProductAgent_OPQuery.txt](Machine Learning/ML_ProductAgent_OPQuery.txt), a commented file with all commands needed to be exceuted in the DEVTools Commandline in OpenSearch Dashboard: upper left menu Navigation => scroll down to "Management" => click on Dev Tools. 
+
+
+
+### 1. Enable ML Commons + Agent Framework
 
 ```json
 PUT _cluster/settings
@@ -54,9 +89,9 @@ PUT _cluster/settings
 }
 ```
 
-✅ *This enables the use of ML models and agents even without dedicated ML nodes.*
+✅ *This enables the use of ML models and agents even without dedicated ML nodes. And also solves a known circuit breaker issue*
 
-### 3. Register the Hugging Face Embedding Model
+### 2. Register the Hugging Face Embedding Model
 
 ```json
 POST /_plugins/_ml/models/_register
@@ -75,7 +110,7 @@ POST /_plugins/_ml/models/_register
 GET /_plugins/_ml/tasks/TASKID
 ```
 
-### 4. Deploy and Test the Model
+### 3. Deploy and Test the Model
 
 ```json
 POST /_plugins/_ml/models/MODELID/_deploy
@@ -94,7 +129,7 @@ POST /_plugins/_ml/models/MODELID/_predict
 
 ✅ *Verifies that text-to-vector transformation works.*
 
-### 5. Create Ingest Pipeline for Text Embeddings
+### 4. Create Ingest Pipeline for Text Embeddings
 
 ```json
 PUT /_ingest/pipeline/product_reviews_data_pipeline
@@ -123,7 +158,7 @@ PUT /_ingest/pipeline/product_reviews_data_pipeline
 
 ✅ *This pipeline will run on document ingestion and create vector embeddings.*
 
-### 6. Create k-NN Index with Vector Fields
+### 5. Create k-NN Index with Vector Fields
 
 ```json
 PUT product_reviews
@@ -147,6 +182,9 @@ PUT product_reviews
 ```
 
 ✅ *Configures the index for vector search and attaches the ingest pipeline.*
+
+### 6. Push data with [Python script](Machine Learning/csv2Json.py) into index
+As data can not directly be imported as csv into OpenSearch, Use the script to tranform into bulk upload JSon and send via REST to OpenSearch. You can check if succesfull under upper left menu Navigation => scroll down to "Management" => click on Index Management => check the produc_review index for entries
 
 ### 7. Enable Access Control for External Connectors
 
