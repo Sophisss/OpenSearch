@@ -6,7 +6,7 @@ This example demonstrates how to build an  agent using **OpenSearch**, **Hugging
 
 ## 📦 Overview
 
-- **Dataset**: Product reviews from [Kaggle]([https://www.kaggle.com/datasets/winston56/johnson-johnson-ogx-product-reviews]) reduced only reveiews from 2019 onwards that were not empty => 2213 entries.
+- **Dataset**: Product reviews from [Kaggle](https://www.kaggle.com/datasets/winston56/johnson-johnson-ogx-product-reviews) reduced only reveiews from 2019 onwards that were not empty => 2213 entries.
 - **Goal**: Enable users to ask questions about products and get contextual, smart answers using vector search + LLM.
 - **Tech Stack**:
   - OpenSearch (ML Commons, k-NN, Agent Framework)
