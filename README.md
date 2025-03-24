@@ -1,17 +1,20 @@
 # OpenSearch
-This project contains the OpenSearch configuration using Docker Compose, along with documentation to help you get started quickly.
+This project contains the OpenSearch configuration using Docker Compose, along with detailed documentation to help you set up and explore OpenSearch efficiently.
 
 ## **What is OpenSearch?**  
-OpenSearch is an open-source search and analytics suite, designed to provide scalable, high-performance solutions for managing, indexing, and querying large volumes of data. It is a fork of Elasticsearch and Kibana, originally developed by Amazon Web Services (AWS) and maintained by the OpenSearch community.
+OpenSearch is an **open-source search and analytics suite** designed to provide scalable, high-performance data management. It enables businesses to **index, search, and analyze** vast amounts of data with features such as full-text search, aggregations and interactive dashboards. 
+
+It is a fork of Elasticsearch and Kibana, originally developed by Amazon Web Services (AWS) and maintained by the OpenSearch community.
 
 ### **Key Features:** 
-- 🔍 **Full-text Search**: Ability to perform advanced search queries on large volumes of data.
+- 🔍 **Advanced Search Capabilities**: Perform complex full-text searches on large datasets.
 - 📈 **Scalability**: OpenSearch is designed to scale horizontally, enabling the management of huge amounts of data.
-- 📊 **Aggregations**: Allows performing advanced data analysis through aggregations and statistics.
-- 📉 **Interactive Dashboards**: OpenSearch Dashboards provide a web-based visualization and analysis interface.
+- 📊 **Aggregations & Analytics**: Execute statistical queries and derive insights from structured and unstructured data.
+- 📉 **Interactive Dashboards**: OpenSearch Dashboards provide a web-based interface for data visualization and monitoring.
+- 🤖 **AI/ML Integrations**: Supports AI-driven features like anomaly detection and predictive analytics.
 
 ## **Project Overview and Objectives** 
-This project aims to explore and evaluate OpenSearch with a focus on its core functionalities, integrations, and use cases. The objectives include:
+This project aims to explore and evaluate OpenSearch with a focus on its core functionalities, integrations and use cases. The objectives include:
 - 🔍 **Observability Analysis**: Study how OpenSearch integrates with observability tools and its compatibility with OpenTelemetry.
 - 📊 **Feature Exploration**: Investigate OpenSearch's capabilities in search, analytics, and visualization.
 - 🤖 **AI/ML Support**: Evaluate OpenSearch's AI/ML features, such as anomaly detection.
@@ -52,7 +55,7 @@ Ensure you have the following tools installed on your system:
 3. **Customize Configuration** ⚙️:  
    Open the `docker-compose.yml` file and configure it according to your environment. For example, you can change port mappings or memory settings based on your system's resources.
 
-   > ⚠️ **Note:**  
+   > ⚠️ **Security Note:**  
    > For OpenSearch 2.12 or later, you must define an admin password for both `opensearch-node1` and `opensearch-node2` when configuring the security demo. Set the `OPENSEARCH_INITIAL_ADMIN_PASSWORD` environment variable in `docker-compose.yml`:
    > 
    > **Example configuration:**
@@ -100,9 +103,7 @@ Once the configuration is complete, navigate to the directory containing `docker
     "tagline": "The OpenSearch Project: https://opensearch.org/"
    }
     ```
-   Additionally, to confirm the containers are running properly, check your Docker container list. You should see both OpenSearch nodes (opensearch-node1 and opensearch-node2) as well as the OpenSearch Dashboards container, confirming that the entire OpenSearch cluster is operational. Below is an example of what that might look like:
-
-      <img width="1127" alt="image" src="https://github.com/user-attachments/assets/09793bfe-1f98-4aea-8a18-626cab938a5d" />
+   Additionally, to confirm the containers are running properly, check your Docker container list. You should see both OpenSearch nodes (opensearch-node1 and opensearch-node2) as well as the OpenSearch Dashboards container, confirming that the entire OpenSearch cluster is operational. 
 
 6. **Access OpenSearch Dashboards** 🌐:  
 Once the containers are up and running, you can access OpenSearch Dashboards via your browser at [http://localhost:5601](http://localhost:5601) and log in with the default username `admin` and the password you set in the `docker-compose.yml` file (e.g., `<your-password>`).

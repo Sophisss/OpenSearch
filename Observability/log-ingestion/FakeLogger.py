@@ -11,8 +11,8 @@ from urllib.parse import urlparse
 # OpenSearch Configuration (UPDATE THIS with your credentials)
 OPENSEARCH_URL = "https://localhost:9200"
 INDEX_NAME = "logs-demo"
-USERNAME = "admin"
-PASSWORD = "Str0ngP@ssw0rd!"
+USERNAME = "your-admin-user"
+PASSWORD = "your-password"
 
 local = get_localzone()
 # Initialize Faker to generate fake data
