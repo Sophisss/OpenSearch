@@ -1,0 +1,116 @@
+{
+   "name": "Monitor HTTP 500 Errors",
+   "type": "monitor",
+   "monitor_type": "query_level_monitor",
+   "enabled": true,
+   "schedule": {
+      "period": {
+         "unit": "MINUTES",
+         "interval": 1
+      }
+   },
+   "inputs": [
+      {
+         "search": {
+            "indices": [
+               "logs-demo"
+            ],
+            "query": {
+               "query": {
+                  "bool": {
+                     "filter": [
+                        {
+                           "term": {
+                              "status_code": {
+                                 "value": "500",
+                                 "boost": 1
+                              }
+                           }
+                        },
+                        {
+                           "range": {
+                              "timestamp": {
+                                 "from": "now-5m/m",
+                                 "to": "now/m",
+                                 "include_lower": true,
+                                 "include_upper": true,
+                                 "boost": 1
+                              }
+                           }
+                        }
+                     ],
+                     "adjust_pure_negative": true,
+                     "boost": 1
+                  }
+               }
+            }
+         }
+      }
+   ],
+   "triggers": [
+      {
+         "query_level_trigger": {
+            "id": "zzC9zJUB_3Q99xvuQBLl",
+            "name": "trigger_tbdm",
+            "severity": "1",
+            "condition": {
+               "script": {
+                  "source": "ctx.results[0].hits.total.value > 5",
+                  "lang": "painless"
+               }
+            },
+            "actions": [
+               {
+                  "id": "notification539335",
+                  "name": "Error 500 Alert",
+                  "destination_id": "zjC8zJUB_3Q99xvu2RKm",
+                  "message_template": {
+                     "source": "Warning: More than 10 HTTP 500 errors have occurred in the last 5 minutes. This could indicate an issue with the backend or server. Check system logs and investigate potential bottlenecks or failures.",
+                     "lang": "mustache"
+                  },
+                  "throttle_enabled": false,
+                  "subject_template": {
+                     "source": "🚨High number of HTTP 500 errors detected🚨",
+                     "lang": "mustache"
+                  }
+               }
+            ]
+         }
+      }
+   ],
+   "ui_metadata": {
+      "schedule": {
+         "timezone": null,
+         "frequency": "interval",
+         "period": {
+            "unit": "MINUTES",
+            "interval": 1
+         },
+         "daily": 0,
+         "weekly": {
+            "tue": false,
+            "wed": false,
+            "thur": false,
+            "sat": false,
+            "fri": false,
+            "mon": false,
+            "sun": false
+         },
+         "monthly": {
+            "type": "day",
+            "day": 1
+         },
+         "cronExpression": "0 */1 * * *"
+      },
+      "monitor_type": "query_level_monitor",
+      "search": {
+         "searchType": "query",
+         "timeField": "",
+         "aggregations": [],
+         "groupBy": [],
+         "bucketValue": 1,
+         "bucketUnitOfTime": "h",
+         "filters": []
+      }
+   }
+}
