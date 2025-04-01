@@ -51,7 +51,7 @@
       {
          "query_level_trigger": {
             "id": "zzC9zJUB_3Q99xvuQBLl",
-            "name": "trigger_tbdm",
+            "name": "HTTP_500_Threshold_Exceeded",
             "severity": "1",
             "condition": {
                "script": {

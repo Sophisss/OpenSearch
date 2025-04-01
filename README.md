@@ -21,7 +21,9 @@ This project aims to explore and evaluate OpenSearch with a focus on its core fu
 - 🎯 **Hands-on Deployment**: Set up OpenSearch locally using Docker Compose for hands-on experimentation.
   
 ## **How to Set Up OpenSearch Locally with Docker Compose** 
-To run OpenSearch on your local environment, you can use Docker and Docker Compose. Below are the steps to configure and start OpenSearch using the `docker-compose.yml` file provided in this repository.
+To start using OpenSearch, it is recommended to deploy it in a local or cloud-based environment. One of the most efficient ways to install OpenSearch is via **Docker Compose**, which simplifies deployment by managing OpenSearch and its dependencies in isolated containers.
+
+Follow these steps to setup OpenSearch using Docker Compose:
 
 ### **Prerequisites**  
 Ensure you have the following tools installed on your system:  
@@ -46,11 +48,15 @@ Ensure you have the following tools installed on your system:
    Download or clone the repository containing the `docker-compose.yml` file to your local system. You can choose the directory where you'd like to run OpenSearch.
 
 2. **Understand the Configuration** 💡:  
-   The `docker-compose.yml` file defines the OpenSearch cluster setup. It consists of two nodes, `opensearch-node1` and `opensearch-node2`, which work together as part of the `opensearch-cluster`. These nodes:
-     - Store and index data, allowing full-text search, log analysis, and structured data querying.
-     - Ensure fault tolerance so if one node fails, the other continues operating.
-     - Improve scalability, distributing workload across multiple nodes for handling large data volumes and complex queries.
-     - Enable advanced search functionalities, supporting aggregations and AI-driven anomaly detection.
+
+   The `docker-compose.yml` file typically defines a minimal OpenSearch cluster with two nodes: 
+     - `opensearch-node1`: Handles indexing and search operations.  
+     - `opensearch-node2`: Works alongside node1 to provide redundancy and scalability.  
+   
+   This setup ensures: 
+   - **Fault tolerance**: If one node fails, the other continues operations.
+   - **Scalability**: Workloads are distributed across multiple nodes, improving performance.
+   - **Advanced search capabilities**: Supports full-text search, log analysis, and machine learning-based anomaly detection.
 
 3. **Customize Configuration** ⚙️:  
    Open the `docker-compose.yml` file and configure it according to your environment. For example, you can change port mappings or memory settings based on your system's resources.
@@ -75,15 +81,23 @@ Ensure you have the following tools installed on your system:
    
    
 4. **Start OpenSearch** ▶️:  
-Once the configuration is complete, navigate to the directory containing `docker-compose.yml` and run the following command to start OpenSearch:
+Once the configuration is complete, navigate to the directory containing `docker-compose.yml` and run the following command to start the cluster in detached mode:
 
     ```bash
-    docker-compose up
+    docker-compose up -d
     ```
-    This will download the necessary Docker images and start the OpenSearch and OpenSearch Dashboards containers (the web interface for managing OpenSearch).
+    This will download the necessary Docker images and launch OpenSearch along with OpenSearch Dashboards.
+   
+    By default: 
+      - OpenSearch is accessible at http://localhost:9200
+      - OpenSearch Dashboards is accessible at http://localhost:5601
 
 5. **Verify OpenSearch is Running** ✅:  
-   Once the system is running, navigate to [https://localhost:9200](https://localhost:9200). If successful, you should see a response similar to:
+   To check if OpenSearch is active, visit http://localhost:9200 in a browser or run:
+   ```bash
+    curl -X GET "http://localhost:9200" 
+    ```
+   A successful response should return JSON output similar to:
    ```json
     {
     "name": "opensearch-node1",
@@ -105,15 +119,19 @@ Once the configuration is complete, navigate to the directory containing `docker
     ```
    Additionally, to confirm the containers are running properly, check your Docker container list. You should see both OpenSearch nodes (opensearch-node1 and opensearch-node2) as well as the OpenSearch Dashboards container, confirming that the entire OpenSearch cluster is operational. 
 
-6. **Access OpenSearch Dashboards** 🌐:  
-Once the containers are up and running, you can access OpenSearch Dashboards via your browser at [http://localhost:5601](http://localhost:5601) and log in with the default username `admin` and the password you set in the `docker-compose.yml` file (e.g., `<your-password>`).
+6. **Exploring OpenSearch Dashboard** 🌐:   
+   After successfully launching OpenSearch, you can access the OpenSearch Dashboard, a graphical interface that allows you to interact with indexed data, create visualizations, and monitor system performance.
 
-7. **Stop the containers** ⏹️:  
+   To open OpenSearch Dashboard, navigate to http://localhost:5601 and log in with the default username `admin` and the password you set in the `docker-compose.yml` file (e.g., `<your-password>`).
+
+7. **Stopping the OpenSearch Cluster** ⏹️:  
 When you're done, you can stop the containers with the following command:
 
     ```bash
     docker-compose down
     ```
+   
+   This command will shut down and remove all containers, networks, and volumes associated with the OpenSearch deployment.
 
     Alternatively, you can stop the containers by pressing `Ctrl + C` in the terminal where you ran `docker-compose up`. This will stop the containers, but they will remain in a stopped state. To remove them entirely, you should run `docker-compose down`.
 
