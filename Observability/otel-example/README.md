@@ -35,6 +35,9 @@ To run the demo on your local machine:
 ```
 This command starts all the necessary services in the background.
 
+💡 **This repository provides a fully pre-configured `docker-compose.yml` and updated configuration files.**
+All services are already instrumented to export **only tracing data** to **OpenSearch**, so you don't need to modify anything manually. It's ready to use out of the box.
+
 3. **Access the Interfaces**:
 * Application Frontend: http://localhost:8080/
 * Load Generator: http://localhost:8089/
@@ -62,3 +65,11 @@ There are two main repositories used to explore OpenTelemetry in practice. Here'
 * 📊 Tracing is visualized directly in **OpenSearch Dashboards** (at `/observability-traces`).
 * 💡 Ideal if you're using or evaluating **OpenSearch as a unified observability backend**.
 * 🔗 [GitHub Repository](https://github.com/jkowall/opensearch-talk.git)
+
+### 📄 Licensing and Attribution
+This demo setup and explanation is based on the following open-source projects:
+1. [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo) – Licensed under the Apache License 2.0
+2. [OpenTelemetry Demo with OpenSearch](https://github.com/jkowall/opensearch-talk.git) – A fork focused on OpenSearch integration, also under the Apache License 2.0
+
+Please refer to the respective repositories for detailed licensing information.
+This documentation is provided for educational and demonstration purposes, with proper attribution to the original authors.
