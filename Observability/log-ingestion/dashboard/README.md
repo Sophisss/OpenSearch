@@ -64,4 +64,4 @@ Therefore we created a dashboard with ability to:
 - Display geolocated events on a map
 - Provide insights into traffic
 
-![Dashboard Screenshot](/Observability/dashboard/Dashboard-Preview.png)
+![Dashboard Screenshot](/Observability/log-ingestion/dashboard/Dashboard-Preview.png)
