@@ -1,6 +1,6 @@
 # 📊 OpenSearch Dashboard: HTTP Logs with Geolocation
 
-This demo sets up an OpenSearch index and dashboard to visualize log data enriched with geographic coordinates. It uses data created by the Fake-Logger Pyhton Script that was used in the log example.
+This demo sets up an OpenSearch index and dashboard to visualize log data enriched with geographic coordinates. It uses data created by the [`Fake-Logger Pyhton Script`](/Observability/log-ingestion/FakeLogger.py) that was used in the log example.
 
 ## 🛠️ Setup Instructions
 
@@ -63,4 +63,5 @@ Therefore we created a dashboard with ability to:
 - Visualize HTTP method usage (GET, POST, etc.)
 - Display geolocated events on a map
 - Provide insights into traffic
-![Dashboard Screenshot](assets/dashboard-preview.png)
+
+![Dashboard Screenshot](/Observability/dashboard/Dashboard-Preview.png)
