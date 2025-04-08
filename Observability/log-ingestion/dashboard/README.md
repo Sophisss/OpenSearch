@@ -65,3 +65,26 @@ Therefore we created a dashboard with ability to:
 - Provide insights into traffic
 
 ![Dashboard Screenshot](/Observability/log-ingestion/dashboard/Dashboard-Preview.png)
+
+
+## 🚀 How to Import into OpenSearch Dashboards
+To replicate the Dashboard shown on the picture please perform following steps: 
+
+1. **Open OpenSearch Dashboards**  
+   Navigate to your OpenSearch localhost 5601
+
+2. **Go to Dashboard Management**  
+   - Click the **hamburger menu (☰)** in the top-left corner.
+   - Select **Management** → **Dashboard Manamgent** → **Saved Objects**
+
+3. **Import the NDJSON File**  
+   - Click the **Import** button.
+   - Upload the provided file: [`export.ndjson`](./export.ndjson).
+   - When prompted, choose:
+     - ✅ **"Automatically overwrite conflicts"** (recommended)
+     - Import all 10 Objects
+
+4. **Verify the Import**  
+   - Go to **Dashboards** from the left navigation.
+   - Open the imported `Logs Demo Dashboard`.
+   - Make sure all visualizations and data load correctly.
